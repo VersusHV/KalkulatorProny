@@ -13,12 +13,17 @@
             border: 1px solid #ccc;
         }
     </style>
+	<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+</script>
+
 </head>
 <body>
     <h1>Kalkulator Prony</h1>
 
     <form id="sumForm">
         <p>Wprowadź dane (z kropką jako separatorem dziesiętnym):</p>
+		<p>Wpisz dane tak jak są podane w zadaniu, kalkulator uwzględnia zamianę jednostek</p>
         <table>
             <thead>
                 <tr>
@@ -45,8 +50,8 @@
         <button type="button" onclick="calculateT()">Oblicz T</button>
     </form>
 
-    <h2>Wynik G: <span id="resultG">-</span></h2>
-    <h2>Wynik T: <span id="resultT">-</span></h2>
+    <h2>Wynik g: <span id="resultG">-</span></h2>
+    <h2>Wynik τ: <span id="resultT">-</span></h2>
 
 <script>
     function calculateG() {
@@ -88,6 +93,61 @@
         document.getElementById('resultT').textContent = result.toExponential(6);
     }
 </script>
+
+<section>
+    <h2>Szereg Prony</h2>
+
+    <p>
+        \( g = \frac{G(t)}{G_0} \quad \Rightarrow \quad g \in (0, 1), \text{ zazwyczaj } g \in (0.5, 0.9) \)
+    </p>
+
+    <p>
+        \( G(t) = \frac{E(t)}{2(1 + \nu(t))} \quad , \quad G_0 = \frac{E_0}{2(1 + \nu_0)} \)
+    </p>
+
+    <p>
+        \( E_0 = 3{,}1\, \text{GPa} = 3{,}1 \times 10^9 \, \text{Pa}, \quad \nu_0 = 0{,}25 \)
+    </p>
+
+    <p>
+        \( E(t) = \frac{\sigma_2}{\varepsilon_2}, \quad \nu(t) = 0{,}5 \)
+    </p>
+
+    <p>
+        \( \sigma_2 = 6{,}52 \, \text{MPa} = 6{,}52 \times 10^6 \, \text{Pa}, \quad \varepsilon_2 = 0{,}29\% = 0{,}0029 \)
+    </p>
+
+    <p>
+        \( g = \frac{\sigma_2 / \varepsilon_2}{2(1 + \nu(t))} \div \frac{E_0}{2(1 + \nu_0)} \)
+    </p>
+
+    <p>
+        \( g = \frac{6{,}52 \times 10^6 / 0{,}0029}{2(1 + 0{,}5)} \div \frac{3{,}1 \times 10^9}{2(1 + 0{,}25)} \approx 0{,}604375 \)
+    </p>
+
+    <h3>Obliczanie \( \tau \)</h3>
+
+    <p>
+        \( \tau = \frac{\eta(t)}{E(t)} \quad , \quad E(t) = \frac{\sigma_2}{\varepsilon_2}, \quad \eta(t) = \frac{\sigma_2}{\dot{\varepsilon}} \)
+    </p>
+
+    <p>
+        \( \dot{\varepsilon} = \frac{\varepsilon_2 - \varepsilon_1}{t_2 - t_1} \)
+    </p>
+
+    <p>
+        \( \varepsilon_1 = 0{,}26\% = 0{,}0026 \)
+    </p>
+
+    <p>
+        \( \tau = \frac{\sigma_2}{(\varepsilon_2 - \varepsilon_1)/(t_2 - t_1)} \div \frac{\sigma_2}{\varepsilon_2} \)
+    </p>
+
+    <p>
+        \( \tau = \frac{6{,}52 \times 10^6}{(0{,}0029 - 0{,}0026)/(100 - 10) \times 3600} \div \frac{6{,}52 \times 10^6}{0{,}0029} \approx 3{,}132 \times 10^6 \, \text{s} \)
+    </p>
+</section>
+
 
 </body>
 </html>

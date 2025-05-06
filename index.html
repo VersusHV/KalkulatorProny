@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Kalkulator Prony prof. Michał</title>
+    <meta name="description" content="Kalkulator szeregu Prony"> 
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        td, th {
+            padding: 8px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Kalkulator Prony</h1>
+
+    <form id="sumForm">
+        <p>Wprowadź dane (z kropką jako separatorem dziesiętnym):</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Czas</th>
+                    <th>Odkształcenie</th>
+                    <th>Naprężenie</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="number" id="num1" step="any" required></td>
+                    <td><input type="number" id="num2" step="any" required></td>
+                    <td><input type="number" id="num3" step="any" required></td>
+                </tr>
+                <tr>
+                    <td><input type="number" id="num4" step="any" required></td>
+                    <td><input type="number" id="num5" step="any" required></td>
+                    <td><input type="number" id="num6" step="any" required></td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <button type="button" onclick="calculateG()">Oblicz G</button>
+        <button type="button" onclick="calculateT()">Oblicz T</button>
+    </form>
+
+    <h2>Wynik G: <span id="resultG">-</span></h2>
+    <h2>Wynik T: <span id="resultT">-</span></h2>
+
+<script>
+    function calculateG() {
+        const strain2 = parseFloat(document.getElementById('num5').value);
+        const stress2 = parseFloat(document.getElementById('num6').value);
+
+        if (!strain2 || !stress2) {
+            document.getElementById('resultG').textContent = "Błąd: brak danych";
+            return;
+        }
+
+        let result = stress2 / strain2;
+        result = (result * 1e8) / (2 * (1 + 0.5));
+        result = result / ((3.1e9) / (2 * (1 + 0.25)));
+
+        document.getElementById('resultG').textContent = result.toFixed(6);
+    }
+    
+
+    function calculateT() {
+        const time1 = parseFloat(document.getElementById('num1').value);
+        const time2 = parseFloat(document.getElementById('num4').value);
+        const strain1 = parseFloat(document.getElementById('num2').value);
+        const strain2 = parseFloat(document.getElementById('num5').value);
+        const stress2 = parseFloat(document.getElementById('num6').value);
+
+        if (!strain2 || !strain1 || !time1 || !time2 || !stress2) {
+            document.getElementById('resultT').textContent = "Błąd: brak danych";
+            return;
+        }
+
+        const deltaEps = strain2 - strain1;
+        const deltaTime = (time2 - time1) * 3600; // godziny → sekundy
+
+        let numerator = (stress2 * 1e8) / (deltaEps / deltaTime);
+        let denominator = (stress2 * 1e8) / strain2;
+        let result = numerator / denominator;
+
+        document.getElementById('resultT').textContent = result.toExponential(6);
+    }
+</script>
+
+</body>
+</html>

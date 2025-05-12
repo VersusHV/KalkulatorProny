@@ -50,7 +50,8 @@
         <button type="button" onclick="calculateT()">Oblicz T</button>
     </form>
 
-    <h2>Wynik g: <span id="resultG">-</span></h2>
+    <h2>Wynik g(v0= 0,25 vt= 0,25): <span id="resultG">-</span></h2>
+	<h2>Wynik g(v0= 0,25 vt= 0,5):  <span id="resultG2">-</span></h2>
     <h2>Wynik τ: <span id="resultT">-</span></h2>
 
 <script>
@@ -58,18 +59,25 @@
         const strain2 = parseFloat(document.getElementById('num5').value);
         const stress2 = parseFloat(document.getElementById('num6').value);
 
-        if (!strain2 || !stress2) {
-            document.getElementById('resultG').textContent = "Błąd: brak danych";
+        if (isNaN(strain2) || isNaN(stress2) || strain2 === 0) {
+            document.getElementById('resultG').textContent = "Błąd: brak danych lub dzielenie przez zero";
+            document.getElementById('resultG2').textContent = "-";
             return;
         }
 
-        let result = stress2 / strain2;
-        result = (result * 1e8) / (2 * (1 + 0.5));
-        result = result / ((3.1e9) / (2 * (1 + 0.25)));
+        const E_t = (stress2 / strain2) * 1e8; // MPa to Pa
 
-        document.getElementById('resultG').textContent = result.toFixed(6);
+        const G_0 = (3.1e9) / (2 * (1 + 0.25));
+
+        const G_t1 = E_t / (2 * (1 + 0.5)); // ν(t) = 0.5
+        const G_t2 = E_t / (2 * (1 + 0.25)); // ν(t) = 0.25
+
+        const g1 = G_t1 / G_0;
+        const g2 = G_t2 / G_0;
+
+        document.getElementById('resultG').textContent = g1.toFixed(6);
+        document.getElementById('resultG2').textContent = g2.toFixed(6);
     }
-    
 
     function calculateT() {
         const time1 = parseFloat(document.getElementById('num1').value);
@@ -78,21 +86,26 @@
         const strain2 = parseFloat(document.getElementById('num5').value);
         const stress2 = parseFloat(document.getElementById('num6').value);
 
-        if (!strain2 || !strain1 || !time1 || !time2 || !stress2) {
-            document.getElementById('resultT').textContent = "Błąd: brak danych";
+        if (
+            isNaN(time1) || isNaN(time2) || isNaN(strain1) || isNaN(strain2) || isNaN(stress2) ||
+            strain2 === 0 || time2 === time1
+        ) {
+            document.getElementById('resultT').textContent = "Błąd: brak danych lub dzielenie przez zero";
             return;
         }
 
         const deltaEps = strain2 - strain1;
-        const deltaTime = (time2 - time1) * 3600; // godziny → sekundy
+        const deltaTime = (time2 - time1) * 3600; // godziny na sekundy
 
-        let numerator = (stress2 * 1e8) / (deltaEps / deltaTime);
-        let denominator = (stress2 * 1e8) / strain2;
-        let result = numerator / denominator;
+        const eta = (stress2 * 1e8) / (deltaEps / deltaTime); // [Pa·s]
+        const E_t = (stress2 * 1e8) / strain2;
 
-        document.getElementById('resultT').textContent = result.toExponential(6);
+        const tau = eta / E_t;
+
+        document.getElementById('resultT').textContent = tau.toExponential(6);
     }
 </script>
+
 
 <section>
     <h2>Szereg Prony</h2>

@@ -1,4 +1,5 @@
 <!DOCTYPE HTML>
+
 <html>
 <head>
     <meta charset="utf-8"/>
@@ -21,63 +22,57 @@
 <body>
     <h1>Kalkulator Prony</h1>
 
-    <form id="sumForm">
-        <p>Wprowadź dane (z kropką jako separatorem dziesiętnym):</p>
-		<p>Wpisz dane tak jak są podane w zadaniu, kalkulator uwzględnia zamianę jednostek</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Czas</th>
-                    <th>Odkształcenie</th>
-                    <th>Naprężenie</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><input type="number" id="num1" step="any" required></td>
-                    <td><input type="number" id="num2" step="any" required></td>
-                    <td><input type="number" id="num3" step="any" required></td>
-                </tr>
-                <tr>
-                    <td><input type="number" id="num4" step="any" required></td>
-                    <td><input type="number" id="num5" step="any" required></td>
-                    <td><input type="number" id="num6" step="any" required></td>
-                </tr>
-            </tbody>
-        </table>
-        <br>
-        <button type="button" onclick="calculateG()">Oblicz G</button>
-        <button type="button" onclick="calculateT()">Oblicz T</button>
-    </form>
+```
+<form id="sumForm">
+    <p>Wprowadź dane (z kropką jako separatorem dziesiętnym):</p>
+	<p>Wpisz dane tak jak są podane w zadaniu, kalkulator uwzględnia zamianę jednostek</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Czas</th>
+                <th>Odkształcenie</th>
+                <th>Naprężenie</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input type="number" id="num1" step="any" required></td>
+                <td><input type="number" id="num2" step="any" required></td>
+                <td><input type="number" id="num3" step="any" required></td>
+            </tr>
+            <tr>
+                <td><input type="number" id="num4" step="any" required></td>
+                <td><input type="number" id="num5" step="any" required></td>
+                <td><input type="number" id="num6" step="any" required></td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <button type="button" onclick="calculateG()">Oblicz G</button>
+    <button type="button" onclick="calculateT()">Oblicz T</button>
+</form>
 
-    <h2>Wynik g(v0= 0,25 vt= 0,25): <span id="resultG">-</span></h2>
-	<h2>Wynik g(v0= 0,25 vt= 0,5):  <span id="resultG2">-</span></h2>
-    <h2>Wynik τ: <span id="resultT">-</span></h2>
+<h2>Wynik g: <span id="resultG">-</span></h2>
+<h2>Wynik τ: <span id="resultT">-</span></h2>
+```
 
 <script>
     function calculateG() {
         const strain2 = parseFloat(document.getElementById('num5').value);
         const stress2 = parseFloat(document.getElementById('num6').value);
 
-        if (isNaN(strain2) || isNaN(stress2) || strain2 === 0) {
-            document.getElementById('resultG').textContent = "Błąd: brak danych lub dzielenie przez zero";
-            document.getElementById('resultG2').textContent = "-";
+        if (!strain2 || !stress2) {
+            document.getElementById('resultG').textContent = "Błąd: brak danych";
             return;
         }
 
-        const E_t = (stress2 / strain2) * 1e8; // MPa to Pa
+        let result = stress2 / strain2;
+        result = (result * 1e8) / (2 * (1 + 0.5));
+        result = result / ((3.1e9) / (2 * (1 + 0.25)));
 
-        const G_0 = (3.1e9) / (2 * (1 + 0.25));
-
-        const G_t1 = E_t / (2 * (1 + 0.5)); // ν(t) = 0.5
-        const G_t2 = E_t / (2 * (1 + 0.25)); // ν(t) = 0.25
-
-        const g1 = G_t1 / G_0;
-        const g2 = G_t2 / G_0;
-
-        document.getElementById('resultG').textContent = g1.toFixed(6);
-        document.getElementById('resultG2').textContent = g2.toFixed(6);
+        document.getElementById('resultG').textContent = result.toFixed(6);
     }
+    
 
     function calculateT() {
         const time1 = parseFloat(document.getElementById('num1').value);
@@ -86,82 +81,82 @@
         const strain2 = parseFloat(document.getElementById('num5').value);
         const stress2 = parseFloat(document.getElementById('num6').value);
 
-        if (
-            isNaN(time1) || isNaN(time2) || isNaN(strain1) || isNaN(strain2) || isNaN(stress2) ||
-            strain2 === 0 || time2 === time1
-        ) {
-            document.getElementById('resultT').textContent = "Błąd: brak danych lub dzielenie przez zero";
+        if (!strain2 || !strain1 || !time1 || !time2 || !stress2) {
+            document.getElementById('resultT').textContent = "Błąd: brak danych";
             return;
         }
 
         const deltaEps = strain2 - strain1;
-        const deltaTime = (time2 - time1) * 3600; // godziny na sekundy
+        const deltaTime = (time2 - time1) * 3600; // godziny → sekundy
 
-        const eta = (stress2 * 1e8) / (deltaEps / deltaTime); // [Pa·s]
-        const E_t = (stress2 * 1e8) / strain2;
+        let numerator = (stress2 * 1e8) / (deltaEps / deltaTime);
+        let denominator = (stress2 * 1e8) / strain2;
+        let result = numerator / denominator;
 
-        const tau = eta / E_t;
-
-        document.getElementById('resultT').textContent = tau.toExponential(6);
+        document.getElementById('resultT').textContent = result.toExponential(6);
     }
 </script>
-
 
 <section>
     <h2>Szereg Prony</h2>
 
-    <p>
-        \( g = \frac{G(t)}{G_0} \quad \Rightarrow \quad g \in (0, 1), \text{ zazwyczaj } g \in (0.5, 0.9) \)
-    </p>
+```
+<p>
+    \( g = \frac{G(t)}{G_0} \quad \Rightarrow \quad g \in (0, 1), \text{ zazwyczaj } g \in (0.5, 0.9) \)
+</p>
 
-    <p>
-        \( G(t) = \frac{E(t)}{2(1 + \nu(t))} \quad , \quad G_0 = \frac{E_0}{2(1 + \nu_0)} \)
-    </p>
+<p>
+    \( G(t) = \frac{E(t)}{2(1 + \nu(t))} \quad , \quad G_0 = \frac{E_0}{2(1 + \nu_0)} \)
+</p>
 
-    <p>
-        \( E_0 = 3{,}1\, \text{GPa} = 3{,}1 \times 10^9 \, \text{Pa}, \quad \nu_0 = 0{,}25 \)
-    </p>
+<p>
+    \( E_0 = 3{,}1\, \text{GPa} = 3{,}1 \times 10^9 \, \text{Pa}, \quad \nu_0 = 0{,}25 \)
+</p>
 
-    <p>
-        \( E(t) = \frac{\sigma_2}{\varepsilon_2}, \quad \nu(t) = 0{,}5 \)
-    </p>
+<p>
+    \( E(t) = \frac{\sigma_2}{\varepsilon_2}, \quad \nu(t) = 0{,}5 \)
+</p>
 
-    <p>
-        \( \sigma_2 = 6{,}52 \, \text{MPa} = 6{,}52 \times 10^6 \, \text{Pa}, \quad \varepsilon_2 = 0{,}29\% = 0{,}0029 \)
-    </p>
+<p>
+    \( \sigma_2 = 6{,}52 \, \text{MPa} = 6{,}52 \times 10^6 \, \text{Pa}, \quad \varepsilon_2 = 0{,}29\% = 0{,}0029 \)
+</p>
 
-    <p>
-        \( g = \frac{\sigma_2 / \varepsilon_2}{2(1 + \nu(t))} \div \frac{E_0}{2(1 + \nu_0)} \)
-    </p>
+<p>
+    \( g = \frac{\sigma_2 / \varepsilon_2}{2(1 + \nu(t))} \div \frac{E_0}{2(1 + \nu_0)} \)
+</p>
 
-    <p>
-        \( g = \frac{6{,}52 \times 10^6 / 0{,}0029}{2(1 + 0{,}5)} \div \frac{3{,}1 \times 10^9}{2(1 + 0{,}25)} \approx 0{,}604375 \)
-    </p>
+<p>
+    \( g = \frac{6{,}52 \times 10^6 / 0{,}0029}{2(1 + 0{,}5)} \div \frac{3{,}1 \times 10^9}{2(1 + 0{,}25)} \approx 0{,}604375 \)
+</p>
 
-    <h3>Obliczanie \( \tau \)</h3>
+<h3>Obliczanie \( \tau \)</h3>
 
-    <p>
-        \( \tau = \frac{\eta(t)}{E(t)} \quad , \quad E(t) = \frac{\sigma_2}{\varepsilon_2}, \quad \eta(t) = \frac{\sigma_2}{\dot{\varepsilon}} \)
-    </p>
+<p>
+    \( \tau = \frac{\eta(t)}{E(t)} \quad , \quad E(t) = \frac{\sigma_2}{\varepsilon_2}, \quad \eta(t) = \frac{\sigma_2}{\dot{\varepsilon}} \)
+</p>
 
-    <p>
-        \( \dot{\varepsilon} = \frac{\varepsilon_2 - \varepsilon_1}{t_2 - t_1} \)
-    </p>
+<p>
+    \( \dot{\varepsilon} = \frac{\varepsilon_2 - \varepsilon_1}{t_2 - t_1} \)
+</p>
 
-    <p>
-        \( \varepsilon_1 = 0{,}26\% = 0{,}0026 \)
-    </p>
+<p>
+    \( \varepsilon_1 = 0{,}26\% = 0{,}0026 \)
+</p>
 
-    <p>
-        \( \tau = \frac{\sigma_2}{(\varepsilon_2 - \varepsilon_1)/(t_2 - t_1)} \div \frac{\sigma_2}{\varepsilon_2} \)
-    </p>
+<p>
+    \( \tau = \frac{\sigma_2}{(\varepsilon_2 - \varepsilon_1)/(t_2 - t_1)} \div \frac{\sigma_2}{\varepsilon_2} \)
+</p>
 
-    <p>
-        \( \tau = \frac{6{,}52 \times 10^6}{(0{,}0029 - 0{,}0026)/(100 - 10) \times 3600} \div \frac{6{,}52 \times 10^6}{0{,}0029} \approx 3{,}132 \times 10^6 \, \text{s} \)
-    </p>
+<p>
+    \( \tau = \frac{6{,}52 \times 10^6}{(0{,}0029 - 0{,}0026)/(100 - 10) \times 3600} \div \frac{6{,}52 \times 10^6}{0{,}0029} \approx 3{,}132 \times 10^6 \, \text{s} \)
+</p>
+```
+
 </section>
 
 <br><br>
 <button onclick="location.href='sprawozdanie.html'">Sprawozdanie</button>
+
+
 </body>
 </html>
